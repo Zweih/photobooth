@@ -2,15 +2,27 @@ package photobooth;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class PhotoApp {
 	
 	public static void main(String[] args) {
-		final int width = 300;
+		final int width = 1280;
 		final int height = width / 16 * 9;
-		final int scale = 3;
-		
-		RenderStream stream = new RenderStream("sideeye");
+		final int scale = 1;
+		final int fpsLock = 30;
+
+		CamControl ctrl = new CamControl();
+
+		try {
+			ctrl.camStart();
+			ctrl.startStream(width, height, fpsLock);
+		}
+		catch(IOException ex) {
+			System.out.println(ex.getMessage());
+		}
+
+		RenderStream stream = new RenderStream(fpsLock, ctrl.getBfs());
 		JFrame frame = new JFrame("WiC Photobooth");
 		Dimension size = new Dimension(width * scale, height * scale);
 

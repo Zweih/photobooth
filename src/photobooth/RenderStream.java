@@ -1,28 +1,27 @@
 package photobooth;
 
 import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferStrategy;
-import java.io.File;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
 
 
 public class RenderStream extends Canvas implements Runnable {
 	
 	private static final long serialVersionUID = 5081205284997774881L;
-	private boolean running;
-	private final String fileName;
-	private Dimension size;
-	
-	public RenderStream(String f) {
-		running = false;
-		fileName = f;
+	private static double target;
+	private boolean isRunning;
+	private BufferedInputStream bis;
+	private Graphics g;
+
+	public RenderStream(double f, BufferedInputStream b) {
+		target = f;
+		isRunning = false;
+		bis = b;
 	}
 	
 	public void run() {
@@ -36,7 +35,7 @@ public class RenderStream extends Canvas implements Runnable {
 		int tps = 0; //ticks per second
 		boolean canRender = false; //to limit framerate to ticks
 		
-		while(running) {
+		while(isRunning) {
 			//determine time difference between last and current loop
 			long now = System.nanoTime();
 			unprocessed += (now - lastTime) / nsPerTick;
@@ -82,18 +81,14 @@ public class RenderStream extends Canvas implements Runnable {
 		}
 
 		try {
-			System.out.println("Loading frame: " + fileName);
-			img = ImageIO.read(new File("./resources/video_input/" + fileName + ".jpg"));
+			System.out.println("Loading frame... ");
+			img = ImageIO.read(bis);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		Graphics g = bs.getDrawGraphics();
+		g = bs.getDrawGraphics();
 
-		//renders background
-		//g.setColor(Color.BLACK);
-		//g.fillRect(0, 0, WIDTH, HEIGHT);
-		//renders image from file
 		if (img != null) {
 			g.drawImage(img, 0, 0, null);
 		}
@@ -103,25 +98,23 @@ public class RenderStream extends Canvas implements Runnable {
 	}
 	
 	public synchronized void start() {
-		if(running) {
+		if(isRunning) {
 			return;
 		}
 		
-		running = true;
+		isRunning = true;
 		
 		new Thread(this, "RenderStream-Thread").start(); //creates a thread and starts it
 	}
 	
 	public synchronized void stop() {
-		if(!running) {
+		if(!isRunning) {
 			return;
 		}
 	
-		running = false;
+		isRunning = false;
 		
 		System.out.print("Program closing...");
 		System.exit(0);
 	}
-	
-	
 }
