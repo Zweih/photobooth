@@ -2,27 +2,40 @@ package photobooth;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 
 public class PhotoApp {
-	
+
 	public static void main(String[] args) {
 		final int width = 1280;
 		final int height = width / 16 * 9;
 		final int scale = 1;
 		final int fpsLock = 30;
 
-		CamControl ctrl = new CamControl();
+//		CamControl ctrl = new CamControl();
+//
+//		try {
+//			ctrl.camStart();
+//			ctrl.startStream(width, height, fpsLock);
+//		}
+//		catch(IOException ex) {
+//			System.out.println(ex.getMessage());
+//		}
+
+		Process p = null;
+		BufferedInputStream bis = null;
 
 		try {
-			ctrl.camStart();
-			ctrl.startStream(width, height, fpsLock);
+			p = Runtime.getRuntime().exec("raspivid -w 100 -h 100 -n -t 10000 -o -");
+			bis = new BufferedInputStream(p.getInputStream());
 		}
 		catch(IOException ex) {
 			System.out.println(ex.getMessage());
 		}
 
-		RenderStream stream = new RenderStream(fpsLock, ctrl.getBfs());
+
+		RenderStream stream = new RenderStream(fpsLock, bis);
 		JFrame frame = new JFrame("WiC Photobooth");
 		Dimension size = new Dimension(width * scale, height * scale);
 
