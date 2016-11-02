@@ -20,14 +20,12 @@ public class RenderStream extends Canvas implements Runnable {
 	private final String fileName;
 	private Dimension size;
 	
-	public RenderStream(String f, int h, int w) {
-		size = new Dimension(h, w);
+	public RenderStream(String f) {
 		running = false;
 		fileName = f;
 	}
 	
-	public void run() { 
-		
+	public void run() {
 		//timing and FPS variables
 		double target = 60.0; //FPS target
 		double nsPerTick = 1000000000.0 / target; //nanoseconds per tick
@@ -77,47 +75,31 @@ public class RenderStream extends Canvas implements Runnable {
 	private void render() {
 		BufferStrategy bs = getBufferStrategy(); //get BS from Canvas class
 		Image img = null;
-		
-		if(bs == null) {
+
+		if (bs == null) {
 			createBufferStrategy(3);
 			return;
 		}
-		
+
 		try {
 			System.out.println("Loading frame: " + fileName);
 			img = ImageIO.read(new File("./resources/video_input/" + fileName + ".jpg"));
-		} 
-		catch(IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		Graphics g = bs.getDrawGraphics();
-		
+
 		//renders background
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, WIDTH, HEIGHT);
+		//g.setColor(Color.BLACK);
+		//g.fillRect(0, 0, WIDTH, HEIGHT);
 		//renders image from file
-		if(img != null){
+		if (img != null) {
 			g.drawImage(img, 0, 0, null);
 		}
-		
+
 		g.dispose();
 		bs.show();
-	}
-	
-	public void createFrame(int w, int h) {
-		JFrame frame = new JFrame("WiC Photoboot");
-		
-		frame.add(this); //inserts the stream instance as a component
-		frame.setSize(w, h); //sets the size of the frame
-		frame.setResizable(false); //the frame will not be resizable, as it's not easy in Java
-		frame.setFocusable(true); //allow keyboard and mouse
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //closes the frame when the game is closed
-		frame.setLocationRelativeTo(null); //sets the origin so the window opens at the middle of the screen
-		frame.setVisible(true); //displays the window
-		frame.requestFocus(); //requests focus from OS
-		
-		setPreferredSize(size);
 	}
 	
 	public synchronized void start() {
