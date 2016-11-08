@@ -23,7 +23,7 @@ public class CamControl {
 	}
 
 	public void startStream(int w, int h, int f) throws IOException {
-		p_stdin.write("raspivid -w " + w + " -h " + h + " -n -t 60000 -b 10000000 -o");
+		p_stdin.write("raspivid -w " + w + " -h " + h + "- fps" + f + "-n -t 60000 -b 10000000 -o test.h264");
 		p_stdin.newLine();
 		p_stdin.flush();
 	}
